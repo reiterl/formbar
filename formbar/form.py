@@ -894,6 +894,8 @@ class Field(object):
                     expr_str = expr_str.replace(x, value)
                 elif isinstance(value, basestring) and value.startswith("$"):
                     expr_str = expr_str.replace(x, "%s" % unicode(value))
+                elif isinstance(value, basestring) and value.startswith("*"):
+                    expr_str = expr_str.replace(x, "%s" % unicode(value))
                 else:
                     expr_str = expr_str.replace(x, "'%s'" % unicode(value))
         return Rule(expr_str.replace("*", "$"))
