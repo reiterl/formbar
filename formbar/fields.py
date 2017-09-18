@@ -869,7 +869,7 @@ class RelationField(CollectionField):
         except Exception as e:
             log.error("Failed to load options for '%s' "
                       "to load the option from db" % self.name)
-        return options
+        return self.sort_options(options)
 
 
 class ManytooneRelationField(RelationField):
