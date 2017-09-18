@@ -157,7 +157,7 @@ def _render_rst_table(options):
     return "\n".join(out)
 
 def _render_docoptions(element):
-     return _render_optiontag(element, "docoptions/option")
+     return _render_optiontag(element, "metadata/docoptions/option")
 
 def _render_optiontag(element, optionname):
     """TODO: Docstring for _render_options.
