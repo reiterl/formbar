@@ -464,7 +464,8 @@ class DateTimeField(Field):
         if not value:
             return ""
         locale = self._form._locale
-        value = get_local_datetime(value)
+        timezone = self._form._timezone
+        value = get_local_datetime(value, timezone)
         if locale == "de":
             dateformat = "dd.MM.yyyy HH:mm:ss"
         else:
@@ -474,7 +475,8 @@ class DateTimeField(Field):
     def _to_python(self, value):
         from formbar.converters import to_datetime
         locale = self._form._locale
-        return to_datetime(value, locale)
+        timezone = self._form._timezone
+        return to_datetime(value, locale, timezone)
 
 
 class TimedeltaField(Field):
@@ -731,14 +733,29 @@ class SelectionField(CollectionField):
     def get_options(self):
         options = []
         user_defined_options = self._config.options
-        if isinstance(user_defined_options, list) and \
-           len(user_defined_options) > 0:
-            for option in self.filter_options(user_defined_options):
-                options.append((option[0], option[1], option[2]))
-        elif isinstance(user_defined_options, str):
-            for option in self._form.merged_data.get(user_defined_options):
-                options.append((option[0], option[1], True))
+        is_option_list = isinstance(user_defined_options, list) and len(user_defined_options)
+        is_string_options = isinstance(user_defined_options, str)
+        is_provided_by_formdataprovider = self._form._item and hasattr(self._form._item, "get_options")
+
+        if is_option_list:
+            self.add_options_from_list(options, user_defined_options)
+        elif is_string_options:
+            self.add_string_options(options, user_defined_options)
+        elif is_provided_by_formdataprovider:
+            self.add_formdata_options(options)
         return self.sort_options(options)
+
+    def add_formdata_options(self, options):
+        for option in self._form._item.get_options(self.name):
+            options.append((option[0], option[1], True))
+
+    def add_string_options(self, options, user_defined_options):
+        for option in self._form.merged_data.get(user_defined_options):
+            options.append((option[0], option[1], True))
+
+    def add_options_from_list(self, options, user_defined_options):
+        for option in self.filter_options(user_defined_options):
+            options.append((option[0], option[1], option[2]))
 
     def _from_python(self, value):
         value = super(CollectionField, self)._from_python(value)
@@ -852,7 +869,7 @@ class RelationField(CollectionField):
         except Exception as e:
             log.error("Failed to load options for '%s' "
                       "to load the option from db" % self.name)
-        return options
+        return self.sort_options(options)
 
 
 class ManytooneRelationField(RelationField):

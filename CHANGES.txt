@@ -1,5 +1,24 @@
+1.2.0
+=====
+Feature Release
+
+Improvements
+- Fixed typos in documentation.
+- Added optional timezone parameter to Form initialisation.
+
+New feature
+- Added datetime picker widget. See https://github.com/Eonasdan/bootstrap-datetimepicker
+- Added new "fields" command to generate.py command (in contrib) to export the
+  entities of a given form as CSV.
+
 1.1.0
 =====
+- Added "selected" config attribute to the radio renderer to preselect an entry from
+  the option by its index.
+- Added "selected" config attribute to the radio renderer to preselect an entry from
+  the option by its index.
+- Added FormDataprovider. A Formdataprovider can be used to fill the form with
+  (dynamic) values and options.
 Feature and bugfix release.
 
 New feature:
