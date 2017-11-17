@@ -58,7 +58,14 @@
     % elif child.tag == "page":
       ${self.render_outline_element(form, child)}
     % elif child.tag == "if" and child[0].tag == "page" and child.attrib.get("static") != "true":
-      <div id="${id(child)}" class="formbar-conditional ${child.attrib.get('type')}" reset-value="${child.attrib.get('reset-value', 'false')}" expr="${child.attrib.get('expr')}">
+      <% 
+        is_active = Rule(child.attrib.get("expr")).evaluate(form.merged_data) 
+        if is_active:
+          css_class = "active"
+        else:
+          css_class = "inactive {} {}".format(child.attrib.get('type'), '' if is_readonly else 'hidden')
+      %>
+      <div id="${id(child)}" class="formbar-conditional ${css_class}" reset-value="${child.attrib.get('reset-value', 'false')}" expr="${child.attrib.get('expr')}">
     % endif
     % if child.attrib.get("static") != "true" or Rule(child.attrib.get("expr")).evaluate(form.merged_data):
       ${self.render_recursive_outline(form, child)}
@@ -92,6 +99,8 @@
         <h3 class="section">${_(child.attrib.get('label'))}</h3>
       % elif child.tag == "subsubsection":
         <h4 class="section">${_(child.attrib.get('label'))}</h4>
+      % elif child.tag == "buttons":
+        <div class="button-pane">
       % elif child.tag == "row":
         <div class="row row-fluid">
       % elif child.tag == "col":
@@ -133,6 +142,8 @@
       % endif
       % if child.tag == "fieldset":
         </fieldset>
+      % elif child.tag == "buttons":
+        </div>
       % elif child.tag == "col":
         </div>
       % elif child.tag == "row":
@@ -158,6 +169,17 @@
             field.readonly = True
         %>
         ${field.render(active) | n}
+      % elif child.tag == "button" and not child.attrib.get("ignore"):
+        <button
+          type="${child.attrib.get("type") or "submit"}"
+          value="${child.attrib.get("value") or ""}"
+          name="_${child.attrib.get("type") or "submit"}"
+          class="${child.attrib.get("class") or "btn btn-default hidden-print"}">
+          % if child.attrib.get("icon"):
+            <i class="${child.attrib.get("icon")}">${_(child.text)}</i>
+          % endif
+          ${_(child.text)}
+        </button>
       % elif child.tag == "snippet":
         <% ref = child.attrib.get('ref') %>
         % if ref:

@@ -446,14 +446,18 @@ var form = function (inputFilter, ruleEngine) {
                 var required = x.getAttribute("required");
                 var datatype = (element)?element.getAttribute("datatype"):undefined;
                 var rules = getRules(x);
+                var dirtyable = !$(element).attr("no-dirtyable") && !$(element).closest("form").hasClass("no-dirtyable") && !$(element).closest("form").attr("no-dirtyable") ;
                 o[name] = {
                     'name': name,
                     'state': state,
+                    'initialstate': state,
                     'value': value,
+                    'initialvalue': value,
                     'desired': desired,
                     'required': required,
                     'datatype': datatype,
-                    'rules': rules
+                    'rules': rules,
+                    'dirtyable':dirtyable,
                 };
             }
             return o;
@@ -761,6 +765,11 @@ var form = function (inputFilter, ruleEngine) {
                 case 'SELECT':
                 case 'TEXTAREA':
                     changeEvent(e);
+                    if (form.isDirty()) {
+                        $("div.formbar-form").trigger("dirty");
+                    } else {
+                        $("div.formbar-form").trigger("clean");
+                    }
                     break;
                 default:
                     break;
@@ -775,7 +784,34 @@ var form = function (inputFilter, ruleEngine) {
         ruleEngine.init();
     };
     return {
-        init: init
+        init: init,
+        getFormFields: function(){
+                return formFields;
+            },
+        isDirty: function(){
+            var keys = Object.keys(formFields);
+            var isModified = function(field){
+                if (Array.isArray(field.value)){
+                    if (field.value.length != field.initialvalue.length){
+                        return true;
+                    }
+                    for(var i=0; i<field.value.length; i+=1){
+                       if (field.value[i] !== field.initialvalue[i]){
+                           return true;
+                       } 
+                    }
+                    return false;
+                }
+                return field.value !== field.initialvalue;
+            }
+            for (k in keys){
+                var field = formFields[keys[k]];
+                if (field.dirtyable && isModified(field)){
+                    return true;
+                };
+            }
+            return false;
+        }
     };
 } (inputFilter, ruleEngine);
 
