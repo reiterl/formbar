@@ -772,6 +772,18 @@ class SelectionField(CollectionField):
                 options.append((option[0], option[1], True))
         return self.sort_options(options)
 
+    def add_formdata_options(self, options):
+        for option in self._form._item.get_options(self.name):
+            options.append((option[0], option[1], True))
+
+    def add_string_options(self, options, user_defined_options):
+        for option in self._form.merged_data.get(user_defined_options):
+            options.append((option[0], option[1], True))
+
+    def add_options_from_list(self, options, user_defined_options):
+        for option in self.filter_options(user_defined_options):
+            options.append((option[0], option[1], option[2]))
+
     def _from_python(self, value):
         value = super(CollectionField, self)._from_python(value)
         # Special handling for multiple values (multiselect in
@@ -888,7 +900,7 @@ class RelationField(CollectionField):
         except Exception as e:
             log.error("Failed to load options for '%s' "
                       "to load the option from db" % self.name)
-        return options
+        return self.sort_options(options)
 
 
 class ManytooneRelationField(RelationField):

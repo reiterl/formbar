@@ -156,21 +156,26 @@ def _render_rst_table(options):
     out.append("")
     return "\n".join(out)
 
+def _render_docoptions(element):
+     return _render_optiontag(element, "metadata/docoptions/option")
 
-def _render_options(element):
+def _render_optiontag(element, optionname):
     """TODO: Docstring for _render_options.
 
-    :element: TODO
-    :returns: TODO
+        :element: TODO
+        :returns: TODO
 
-    """
+        """
     options = {}
-    for option in element.findall("options/option"):
+    for option in element.findall(optionname):
         name = _(option.text.encode("UTF-8"))
         options[option.attrib.get('value')] = name
     if options:
         return reindent(_render_rst_table(options))
     return ""
+
+def _render_options(element):
+    return _render_optiontag(element, "options/option")
 
 
 def _render_rules(element):
@@ -225,6 +230,9 @@ def render_field(element):
     options = _render_options(element)
     if options:
         out.append(options)
+    docoptions = _render_docoptions(element)
+    if docoptions:
+        out.append(docoptions)
     out.append(_render_id(element))
     out.append(_render_renderer(element))
     help_ = _render_help(element)

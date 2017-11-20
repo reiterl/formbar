@@ -23,6 +23,15 @@ New feature
   a form is dirty (form.isDirty()) and check fields form (form.getFormFields()) 
 - $("div.formbar-form") now triggers "dirty" and clean events.
 
+1.1.7
+=====
+- Added "selected" config attribute to the radio renderer to preselect an entry from
+  the option by its index.
+- Added "selected" config attribute to the radio renderer to preselect an entry from
+  the option by its index.
+- Added FormDataprovider. A Formdataprovider can be used to fill the form with
+  (dynamic) values and options.
+
 1.1.0
 =====
 Feature and bugfix release.
