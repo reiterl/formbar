@@ -435,6 +435,8 @@ class Form(Config):
         :returns: yields field elements
 
         """
+        if root is None:
+            root = self._tree
         for child in root:
             if len(child) > 0:
                 if child.tag == "if":
@@ -456,7 +458,8 @@ class Form(Config):
                     for elem in self.walk(child, values,
                                           evaluate, include_layout):
                         yield elem
-                elif include_layout and child.tag in ["section",
+                elif include_layout and child.tag in ["page",
+                                                      "section",
                                                       "subsection"]:
                     yield child
                     for elem in self.walk(child, values,
@@ -664,6 +667,7 @@ class Field(Config):
             expr = "bool($%s)" % self.name
             mode = "pre"
             rule = Rule(expr, required_msg, mode)
+            rule.required = True
             rules.append(rule)
 
     def desired_rule(self, rules):
@@ -672,6 +676,7 @@ class Field(Config):
             mode = "pre"
             triggers = "warning"
             rule = Rule(expr, desired_msg, mode, triggers)
+            rule.desired = True
             rules.append(rule)
 
     def get_rules(self):

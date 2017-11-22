@@ -6,12 +6,24 @@ Improvements
 - Fixed typos in documentation.
 - Added optional timezone parameter to Form initialisation.
 
+Changes:
+- Change client site type conversion of "selection" values in forms. Convert according to
+  datatype of field. Attention: This may require changes in rule definitions
+  as rules like "'1' in $foo" may not work anymore as $foo is now a real list
+  of integers.
+
 New feature
+- Added FormDataprovider. A Formdataprovider can be used to fill the form with
+  (dynamic) values and options.
 - Added datetime picker widget. See https://github.com/Eonasdan/bootstrap-datetimepicker
+- Added currency widget.
 - Added new "fields" command to generate.py command (in contrib) to export the
   entities of a given form as CSV.
+- Global JS "form" variable now avaible. This variable can be used to check if
+  a form is dirty (form.isDirty()) and check fields form (form.getFormFields()) 
+- $("div.formbar-form") now triggers "dirty" and clean events.
 
-1.1.0
+1.1.7
 =====
 - Added "selected" config attribute to the radio renderer to preselect an entry from
   the option by its index.
@@ -19,6 +31,9 @@ New feature
   the option by its index.
 - Added FormDataprovider. A Formdataprovider can be used to fill the form with
   (dynamic) values and options.
+
+1.1.0
+=====
 Feature and bugfix release.
 
 New feature:
@@ -32,7 +47,6 @@ Bugfix:
 =====
 Internal release only already includes most of the features from 1.1.0 but
 never has been released in the public.
-
 
 1.0.2
 =====

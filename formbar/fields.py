@@ -79,6 +79,8 @@ class FieldFactory(object):
             dtype = "string"
         if dtype == "interval":
             dtype = "datetime"
+        if dtype == "currency":
+            dtype = "float"
         if dtype == "text" and sa_dtype == "string":
             dtype = "string"
         if sa_dtype != dtype and (sa_dtype is not None and dtype != "string"):
@@ -127,6 +129,7 @@ class FieldFactory(object):
             "text": self._create_string,
             "integer": self._create_integer,
             "float": self._create_float,
+            "currency": self._create_currency,
             "date": self._create_date,
             "datetime": self._create_datetime,
             "interval": self._create_timedelta,
@@ -166,6 +169,9 @@ class FieldFactory(object):
 
     def _create_float(self, fieldconfig, sa_property):
         return FloatField(self.form, fieldconfig, self.translate, sa_property)
+
+    def _create_currency(self, fieldconfig, sa_property):
+        return CurrencyField(self.form, fieldconfig, self.translate, sa_property)
 
     def _create_date(self, fieldconfig, sa_property):
         return DateField(self.form, fieldconfig, self.translate, sa_property)
@@ -430,6 +436,19 @@ class FloatField(Field):
     def _to_python(self, value):
         from formbar.converters import to_float
         return to_float(value)
+
+
+class CurrencyField(Field):
+
+    def _to_python(self, value):
+        from formbar.converters import to_currency
+        locale = self._form._locale
+        return to_currency(value, locale)
+
+    def _from_python(self, value):
+        from formbar.converters import from_currency
+        locale = self._form._locale
+        return from_currency(value, locale)
 
 
 class BooleanField(Field):
@@ -733,16 +752,24 @@ class SelectionField(CollectionField):
     def get_options(self):
         options = []
         user_defined_options = self._config.options
-        is_option_list = isinstance(user_defined_options, list) and len(user_defined_options)
-        is_string_options = isinstance(user_defined_options, str)
-        is_provided_by_formdataprovider = self._form._item and hasattr(self._form._item, "get_options")
-
-        if is_option_list:
-            self.add_options_from_list(options, user_defined_options)
-        elif is_string_options:
-            self.add_string_options(options, user_defined_options)
-        elif is_provided_by_formdataprovider:
-            self.add_formdata_options(options)
+        if isinstance(user_defined_options, list) and \
+           len(user_defined_options) > 0:
+            for option in self.filter_options(user_defined_options):
+                if option[1] == '':
+                    value = ''
+                elif isinstance(self, IntSelectionField):
+                    value = int(option[1])
+                elif isinstance(self, BooleanSelectionField):
+                    value = bool(option[1])
+                else:
+                    value = option[1]
+                options.append((option[0], value, option[2]))
+        elif isinstance(user_defined_options, str):
+            for option in self._form.merged_data.get(user_defined_options):
+                options.append((option[0], option[1], True))
+        elif self._form._item and hasattr(self._form._item, "get_options"):
+            for option in self._form._item.get_options(self.name):
+                options.append((option[0], option[1], True))
         return self.sort_options(options)
 
     def add_formdata_options(self, options):
@@ -764,17 +791,21 @@ class SelectionField(CollectionField):
         # SQLAalchemy automatically. eg the python value "['1',
         # '2']" will be converted into the _string_ "{1,2,''}". In
         # this case we need to convert the value back into a list.
-        if value.startswith("{") and value.endswith("}"):
-            serialized = []
-            for v in value.strip("{").strip("}").split(","):
-                if isinstance(self, IntSelectionField):
-                    value = int(v)
-                elif isinstance(self, BooleanSelectionField):
-                    value = bool(v)
-                else:
-                    value = unicode(v)
-                serialized.append(value)
-            value = serialized
+        serialized = []
+        if ((value.startswith("{") and value.endswith("}")) or
+           (value.startswith("[") and value.endswith("]"))):
+            value = value.strip("[").strip("]").strip("{").strip("}")
+        for v in value.split(","):
+            if not value:
+                continue
+            if isinstance(self, IntSelectionField):
+                value = int(v)
+            elif isinstance(self, BooleanSelectionField):
+                value = bool(v)
+            else:
+                value = unicode(v)
+            serialized.append(value)
+        value = serialized
         return value
 
     def _to_python(self, value):

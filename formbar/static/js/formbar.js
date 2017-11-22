@@ -118,9 +118,22 @@ var ruleEngine = function () {
         switch(currentValue.datatype){
             case 'date':
             case 'text':
-            case 'stringselection':
             case 'string':
                 return (!stringContainsArray(v))?"'"+v.replace(/\n/g,'').replace(/'/g,'\\\'')+"'":v;
+            case 'stringselection':
+                return currentValue.value || "None";
+            case 'intselection':
+                // "" in Checkboxes is a hack to simulate an empty
+                // selection. For rule evaluation we can/must remove it.
+                if (Array.isArray(currentValue.value)) {
+                    var i = currentValue.value.indexOf("");
+                    if(i != -1) {
+                        currentValue.value.splice(i, 1);
+                    }
+                    return currentValue.value.map(Number) || "None";
+                } else {
+                    return Number(currentValue.value);
+                }
             default:
                 return currentValue.value || "None";
         }
@@ -216,6 +229,7 @@ var inputFilter = function () {
     var zero = "0".charCodeAt(0);
     var nine = "9".charCodeAt(0);
     var point = ".".charCodeAt(0);
+    var comma = ",".charCodeAt(0);
     var minus = "-".charCodeAt(0);
     var slash = "/".charCodeAt(0);
     var column = ":".charCodeAt(0);
@@ -251,6 +265,18 @@ var inputFilter = function () {
      * 
      * @param {string} key 
      * 
+     * results in true only for 0 - 9 . and -
+     *
+     */
+    var currency = function (key) {
+        return !(key.charCode !== 0 && key.charCode !== comma && key.charCode !== point && key.charCode !== minus && (key.charCode < zero || key.charCode > nine));
+    };
+
+    /**
+     * @function
+     * 
+     * @param {string} key 
+     * 
      * results in true only for 0 - 9, . and /
      *
      */
@@ -274,7 +300,8 @@ var inputFilter = function () {
         integer: integer,
         float: float,
         date: date,
-        datetime: datetime
+        datetime: datetime,
+        currency: currency
     };
 } ();
 
@@ -403,6 +430,7 @@ var form = function (inputFilter, ruleEngine) {
         $('div.formbar-form input.float').keypress(inputFilter.float);
         $('div.formbar-form input.date').keypress(inputFilter.date);
         $('div.formbar-form input.datetime').keypress(inputFilter.datetime);
+        $('div.formbar-form input.currency').keypress(inputFilter.currency);
     };
 
 
