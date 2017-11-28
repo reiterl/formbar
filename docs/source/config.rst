@@ -979,7 +979,8 @@ which field the error message will be shown. The 'context' is optional
 and can be anything additional which is needed for the validation.
 
 The function should return True in case the validation succeeds or either
-return False or raise an exception in case of validation errors. If the method
+return False or raise an :class:`.ValidationException` in case of validation
+errors. If the method
 raises an exception the message of the exception will be used as error
 message. The validator can be added in two differen ways.
 
