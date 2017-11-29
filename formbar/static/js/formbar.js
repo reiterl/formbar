@@ -790,6 +790,7 @@ var form = function (inputFilter, ruleEngine) {
                 default:
                     break;
             }
+            return;
         });
         $("div.formbar-form").on("change", function (e) {
             switch (e.target.tagName) {
@@ -806,6 +807,7 @@ var form = function (inputFilter, ruleEngine) {
                 default:
                     break;
             }
+            return;
         });
     };
 
