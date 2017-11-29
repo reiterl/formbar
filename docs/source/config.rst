@@ -189,6 +189,7 @@ Attribute   Description
 =========   ===========
 src         The *src* attribute is the modul path to the callable. The path is used to import the validator dynamically at runtime.
 msg         The message which is displayed if the evaluation of the validation fails.
+triggers    Flag which defines which type of message a the rule will trigger if the evaluation fails. Be be error (default) or warning.
 =========   ===========
 
 See :ref:`external_validator` for more details, how to write such a
