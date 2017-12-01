@@ -790,7 +790,6 @@ var form = function (inputFilter, ruleEngine) {
                 default:
                     break;
             }
-            return;
         });
         $("div.formbar-form").on("change", function (e) {
             switch (e.target.tagName) {
@@ -799,15 +798,14 @@ var form = function (inputFilter, ruleEngine) {
                 case 'TEXTAREA':
                     changeEvent(e);
                     if (form.isDirty()) {
-                        $("div.formbar-form").trigger("dirty");
+                        setTimeout(function(){$("div.formbar-form").trigger("dirty");}, 100);
                     } else {
-                        $("div.formbar-form").trigger("clean");
+                        setTimeout(function(){$("div.formbar-form").trigger("clean");}, 100);
                     }
                     break;
                 default:
                     break;
             }
-            return;
         });
     };
 
