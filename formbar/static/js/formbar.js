@@ -798,9 +798,9 @@ var form = function (inputFilter, ruleEngine) {
                 case 'TEXTAREA':
                     changeEvent(e);
                     if (form.isDirty()) {
-                        setTimeout(function(){$("div.formbar-form").trigger("dirty");}, 100);
+                        setTimeout(function(){$("div.formbar-form").trigger("dirty");}, 300);
                     } else {
-                        setTimeout(function(){$("div.formbar-form").trigger("clean");}, 100);
+                        setTimeout(function(){$("div.formbar-form").trigger("clean");}, 300);
                     }
                     break;
                 default:
