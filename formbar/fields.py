@@ -802,7 +802,7 @@ class SelectionField(CollectionField):
             if isinstance(self, IntSelectionField):
                 value = int(v)
             elif isinstance(self, BooleanSelectionField):
-                value = bool(v)
+                value = self._str_to_bool(v)
             else:
                 value = unicode(v)
             serialized.append(value)
@@ -815,6 +815,13 @@ class SelectionField(CollectionField):
         # will be converted into the _string_ "{1,2,''}".
         return value
 
+    def _str_to_bool(self, string):
+        if string is None:
+            return None
+        elif string == "False":
+            return False
+        else:
+            return True
 
 class IntSelectionField(SelectionField):
     """Field which can have one or more of predefined values. The
