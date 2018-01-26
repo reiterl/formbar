@@ -794,6 +794,8 @@ class SelectionField(CollectionField):
         # '2']" will be converted into the _string_ "{1,2,''}". In
         # this case we need to convert the value back into a list.
         serialized = []
+        # the {..} case looks fishy to me. I saw s.th. like u'{"", "1"}'
+        # I don't see why this works. (lr)
         if value.startswith("{") and value.endswith("}"):
             value = value.strip("[").strip("]").strip("{").strip("}")
         elif value.startswith("[") and value.endswith("]"):
